@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 
 export const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -97,6 +98,28 @@ export const AuthPage = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/seller-dashboard`,
+        },
+      });
+      if (error) throw error;
+      // Supabase will handle the redirect, so no further action needed here
+    } catch (error: any) {
+      toast({
+        title: "Sign In Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md">
@@ -110,6 +133,19 @@ export const AuthPage = () => {
             <CardTitle className="text-center">Welcome</CardTitle>
           </CardHeader>
           <CardContent>
+            {/* Google OAuth */}
+            <Button
+              variant="outline"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
+              className="w-full mb-6"
+            >
+              {isGoogleLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : null}
+              Continue with Google
+            </Button>
+
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
