@@ -13,6 +13,8 @@ SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY")
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise RuntimeError("Missing Supabase credentials in .env")
 
+STORAGE_FILE = "fei_storage_state.json"
+
 sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def clean(text):
@@ -20,28 +22,39 @@ def clean(text):
 
 def scrape_horse_with_playwright(fei_id):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+        browser = p.chromium.launch(headless=False)
+        context = browser.new_context(storage_state=STORAGE_FILE)
+        page = context.new_page()
         
-        # Step 1: Go to Search page and search FEI ID
-        page.goto("https://data.fei.org/Horse/Search.aspx")
-        page.fill("#ctl00_ContentPlaceHolder1_txtFEIID", fei_id)
-        page.click("#ctl00_ContentPlaceHolder1_btnSearch")
-        page.wait_for_timeout(2000)
+        page.goto("https://data.fei.org/Horse/Search.aspx", timeout=60000)
+        page.wait_for_load_state("domcontentloaded")
 
-        # Step 2: Click on the result row (assumes 1st result is correct)
+        # Wait for the iframe to appear
+        page.wait_for_selector("iframe")
+
+        # Grab the iframe and its content
+        frame = page.frame(name="main") or page.frames[1]  # Adjust index if necessary
+
+        # Ensure iframe content is loaded
+        frame.wait_for_selector("#ctl00_ContentPlaceHolder1_txtFEIID")
+
+        # Fill in the form inside the iframe
+        frame.fill("#ctl00_ContentPlaceHolder1_txtFEIID", fei_id)
+        frame.click("#ctl00_ContentPlaceHolder1_btnSearch")
+        frame.wait_for_timeout(2000)
+
         try:
-            page.click("table.Grid tr:nth-child(2) a")
-            page.wait_for_timeout(2000)
+            frame.click("table.Grid tr:nth-child(2) a")
+            frame.wait_for_timeout(2000)
         except:
             print(f"[!] FEI ID {fei_id} not found or clickable.")
             browser.close()
             return
 
-        # Step 3: Extract data from Detail page
+        # Extract basic horse info
         try:
-            name = page.locator("text=Birth Name").locator("xpath=..").locator("td").nth(1).inner_text()
-            dob_text = page.locator("text=Date of Birth").locator("xpath=..").locator("td").nth(1).inner_text()
+            name = frame.locator("text=Birth Name").locator("xpath=..").locator("td").nth(1).inner_text()
+            dob_text = frame.locator("text=Date of Birth").locator("xpath=..").locator("td").nth(1).inner_text()
             dob = datetime.strptime(dob_text, "%d/%m/%Y").date() if dob_text else None
 
             horse = {
