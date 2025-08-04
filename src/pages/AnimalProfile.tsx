@@ -8,17 +8,17 @@ import { Loader2, Trophy, MapPin, Calendar, User, Sparkles } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 
 interface Animal {
-  id: string;
+  id: string; // FEI ID
   name: string;
   age: number;
-  height_cm: number;
-  breed: string;
-  dam: string;
-  sire: string;
-  coloring: string;
-  microchip_number: string;
-  passport_number: string;
-  country: string;
+  height_cm: number | null;
+  breed: string | null;
+  dam: string | null;
+  sire: string | null;
+  coloring: string | null;
+  microchip_number: string | null;
+  passport_number: string | null;
+  country: string | null;
   is_pony: boolean;
 }
 
@@ -28,11 +28,11 @@ interface CompetitionResult {
   competition_date: string;
   location: string;
   rider_name: string;
-  fence_height_cm: number;
-  faults: number;
-  placement: number;
-  total_competitors: number;
-  time_seconds: number;
+  fence_height_cm: number | null;
+  faults: string | number | null;
+  placement: number | null;
+  total_competitors?: number | null;
+  time_seconds?: number | null;
 }
 
 export const AnimalProfile = () => {
@@ -54,25 +54,63 @@ export const AnimalProfile = () => {
     try {
       setIsLoading(true);
       
-      // Fetch animal details
-      const { data: animalData, error: animalError } = await (supabase as any)
-        .from('animals')
+      // Fetch horse details (new schema)
+      const { data: horseRow, error: horseError } = await (supabase as any)
+        .from('horses')
         .select('*')
-        .eq('id', id)
+        .eq('fei_id', id)
         .single();
+ 
+      if (horseError) throw horseError;
 
-      if (animalError) throw animalError;
-      setAnimal(animalData);
+      if (horseRow) {
+        const today = new Date();
+        const dob = horseRow.date_of_birth ? new Date(horseRow.date_of_birth) : undefined;
+        const age = dob
+          ? today.getFullYear() - dob.getFullYear() - (today < new Date(today.getFullYear(), dob.getMonth(), dob.getDate()) ? 1 : 0)
+          : 0;
 
-      // Fetch competition results
-      const { data: competitionData, error: competitionError } = await (supabase as any)
-        .from('competition_results')
+        const mapped: Animal = {
+          id: horseRow.fei_id,
+          name: horseRow.name,
+          age,
+          height_cm: null, // Not available in FEI data
+          breed: horseRow.studbook ?? null,
+          dam: horseRow.dam ?? null,
+          sire: horseRow.sire ?? null,
+          coloring: horseRow.color ?? null,
+          microchip_number: horseRow.microchip ?? null,
+          passport_number: horseRow.ueln ?? null,
+          country: horseRow.country_of_birth ?? null,
+          is_pony: horseRow.is_pony,
+        };
+
+        setAnimal(mapped);
+      }
+
+      // Fetch competition results (new schema)
+      const { data: competitionRows, error: competitionError } = await (supabase as any)
+        .from('results')
         .select('*')
-        .eq('animal_id', id)
+        .eq('horse_fei_id', id)
         .order('competition_date', { ascending: false });
 
       if (competitionError) throw competitionError;
-      setCompetitions(competitionData || []);
+
+      const mappedResults: CompetitionResult[] = (competitionRows || []).map((row: any) => ({
+        id: row.id,
+        competition_name: row.competition_name,
+        competition_date: row.competition_date,
+        location: row.location,
+        rider_name: row.rider_name,
+        fence_height_cm: row.obstacle_height_cm,
+        faults: row.faults,
+        placement: row.result_place ? Number(row.result_place) : null,
+        total_competitors: null,
+        time_seconds: null,
+      }));
+
+      setCompetitions(mappedResults);
 
     } catch (error) {
       console.error('Error fetching animal data:', error);
@@ -260,8 +298,8 @@ export const AnimalProfile = () => {
                               </span>
                             </div>
                           </div>
-                          <Badge variant={comp.placement <= 3 ? "default" : "secondary"}>
-                            {comp.placement}/{comp.total_competitors}
+                          <Badge variant={comp.placement && comp.placement <= 3 ? "default" : "secondary"}>
+                            {comp.placement ?? "-"}/{comp.total_competitors ?? "-"}
                           </Badge>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
@@ -273,7 +311,7 @@ export const AnimalProfile = () => {
                             <span className="font-medium">Faults:</span><br />
                             <span className="text-muted-foreground">{comp.faults}</span>
                           </div>
-                          {comp.time_seconds && (
+                          {comp.time_seconds !== null && comp.time_seconds !== undefined && (
                             <div>
                               <span className="font-medium">Time:</span><br />
                               <span className="text-muted-foreground">{comp.time_seconds}s</span>

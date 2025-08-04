@@ -14,18 +14,18 @@ interface ForSaleListing {
   is_active: boolean;
   featured: boolean;
   created_at: string;
-  animals: {
+  horse: {
     id: string;
     name: string;
     age: number;
-    height_cm: number;
-    breed: string;
-    dam: string;
-    sire: string;
-    coloring: string;
-    microchip_number: string;
-    passport_number: string;
-    country: string;
+    height_cm: number | null;
+    breed: string | null;
+    dam: string | null;
+    sire: string | null;
+    coloring: string | null;
+    microchip_number: string | null;
+    passport_number: string | null;
+    country: string | null;
     is_pony: boolean;
   };
   profiles: {
@@ -47,24 +47,49 @@ export const ForSale = () => {
     try {
       setIsLoading(true);
       
-      const { data, error } = await (supabase as any)
+      const { data: rows, error } = await (supabase as any)
         .from('for_sale_listings')
-        .select(`
-          *,
-          animals (
-            id, name, age, height_cm, breed, dam, sire, coloring,
-            microchip_number, passport_number, country, is_pony
-          ),
-          profiles (
-            stable_name, country
-          )
-        `)
+        .select(`*, profiles ( stable_name, country ), horses ( fei_id, name, date_of_birth, studbook, dam, sire, color, microchip, ueln, country_of_birth, is_pony )`)
         .eq('is_active', true)
         .order('featured', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setListings(data || []);
+
+      const mapped = (rows || []).map((row: any) => {
+        const horseRow = row.horses;
+        const today = new Date();
+        const dob = horseRow?.date_of_birth ? new Date(horseRow.date_of_birth) : undefined;
+        const age = dob
+          ? today.getFullYear() - dob.getFullYear() - (today < new Date(today.getFullYear(), dob.getMonth(), dob.getDate()) ? 1 : 0)
+          : 0;
+
+        return {
+          id: row.id,
+          description: row.description,
+          ai_generated_description: row.ai_generated_description,
+          is_active: row.is_active,
+          featured: row.featured,
+          created_at: row.created_at,
+          horse: {
+            id: horseRow.fei_id,
+            name: horseRow.name,
+            age,
+            height_cm: null,
+            breed: horseRow.studbook ?? null,
+            dam: horseRow.dam ?? null,
+            sire: horseRow.sire ?? null,
+            coloring: horseRow.color ?? null,
+            microchip_number: horseRow.microchip ?? null,
+            passport_number: horseRow.ueln ?? null,
+            country: horseRow.country_of_birth ?? null,
+            is_pony: horseRow.is_pony,
+          },
+          profiles: row.profiles,
+        } as ForSaleListing;
+      });
+
+      setListings(mapped);
     } catch (error) {
       console.error('Error fetching listings:', error);
       toast({
@@ -110,13 +135,13 @@ export const ForSale = () => {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-xl">{listing.animals.name}</CardTitle>
+                      <CardTitle className="text-xl">{listing.horse.name}</CardTitle>
                       <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant={listing.animals.is_pony ? "secondary" : "default"}>
-                          {listing.animals.is_pony ? 'Pony' : 'Horse'}
+                        <Badge variant={listing.horse.is_pony ? "secondary" : "default"}>
+                          {listing.horse.is_pony ? 'Pony' : 'Horse'}
                         </Badge>
                         <span className="text-sm text-muted-foreground">
-                          {listing.animals.age}yo • {listing.animals.height_cm}cm
+                          {listing.horse.age}yo {listing.horse.height_cm ? `• ${listing.horse.height_cm}cm` : ''}
                         </span>
                       </div>
                     </div>
@@ -128,28 +153,28 @@ export const ForSale = () => {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="font-medium">Breed:</span><br />
-                      <span className="text-muted-foreground">{listing.animals.breed}</span>
+                      <span className="text-muted-foreground">{listing.horse.breed}</span>
                     </div>
                     <div>
                       <span className="font-medium">Color:</span><br />
-                      <span className="text-muted-foreground">{listing.animals.coloring}</span>
+                      <span className="text-muted-foreground">{listing.horse.coloring}</span>
                     </div>
                     <div>
                       <span className="font-medium">Dam:</span><br />
-                      <span className="text-muted-foreground">{listing.animals.dam}</span>
+                      <span className="text-muted-foreground">{listing.horse.dam}</span>
                     </div>
                     <div>
                       <span className="font-medium">Sire:</span><br />
-                      <span className="text-muted-foreground">{listing.animals.sire}</span>
+                      <span className="text-muted-foreground">{listing.horse.sire}</span>
                     </div>
                   </div>
 
                   {/* Registration */}
                   <div className="border-t pt-4">
                     <div className="text-sm space-y-1">
-                      <div><strong>Microchip:</strong> {listing.animals.microchip_number}</div>
-                      <div><strong>Passport:</strong> {listing.animals.passport_number}</div>
-                      <div><strong>Country:</strong> {listing.animals.country}</div>
+                      <div><strong>Microchip:</strong> {listing.horse.microchip_number}</div>
+                      <div><strong>Passport:</strong> {listing.horse.passport_number}</div>
+                      <div><strong>Country:</strong> {listing.horse.country}</div>
                     </div>
                   </div>
 
@@ -185,7 +210,7 @@ export const ForSale = () => {
 
                   {/* Actions */}
                   <div className="border-t pt-4 space-y-2">
-                    <Link to={`/animal/${listing.animals.id}`}>
+                    <Link to={`/animal/${listing.horse.id}`}>
                       <Button className="w-full">View Performance Data</Button>
                     </Link>
                     <div className="text-center text-sm text-muted-foreground">

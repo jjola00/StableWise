@@ -37,13 +37,29 @@ export const SearchBar = ({ variant = "default" }: SearchBarProps) => {
       try {
         // Use a raw query to avoid type issues
         const { data, error } = await (supabase as any)
-          .from('animals')
-          .select('id, name, age, country, is_pony, breed')
-          .ilike('name', `%${searchTerm}%`)
+          .from("horses")
+          .select("fei_id, name, date_of_birth, country_of_birth, is_pony, studbook")
+          .ilike("name", `%${searchTerm}%`)
           .limit(8);
 
+        // Map FEI schema to the local Animal interface
+        const mapped: Animal[] = (data || []).map((row: any) => {
+          const today = new Date();
+          const dob = row.date_of_birth ? new Date(row.date_of_birth) : undefined;
+          const age = dob ? today.getFullYear() - dob.getFullYear() - (today < new Date(today.getFullYear(), dob.getMonth(), dob.getDate()) ? 1 : 0) : 0;
+
+          return {
+            id: row.fei_id,
+            name: row.name,
+            age,
+            country: row.country_of_birth,
+            is_pony: row.is_pony,
+            breed: row.studbook,
+          };
+        });
+
         if (error) throw error;
-        setSuggestions(data || []);
+        setSuggestions(mapped);
         setShowSuggestions(true);
       } catch (error) {
         console.error('Error searching animals:', error);
