@@ -29,11 +29,6 @@ export const HomePage = () => {
                 Browse For Sale
               </Button>
             </Link>
-            <Link to="/search">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                Search Database
-              </Button>
-            </Link>
           </div>
         </div>
       </section>

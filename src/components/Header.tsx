@@ -41,9 +41,6 @@ export const Header = () => {
 
         {/* Right – Desktop nav */}
         <nav className="hidden md:flex items-center space-x-6">
-          <Link to="/search" className="text-foreground hover:text-primary transition-colors">
-            Search
-          </Link>
           <Link to="/for-sale" className="text-foreground hover:text-primary transition-colors">
             For Sale
           </Link>

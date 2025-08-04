@@ -66,7 +66,7 @@ export const SearchBar = ({ variant = "default" }: SearchBarProps) => {
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      navigate(`/?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 
