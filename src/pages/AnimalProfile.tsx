@@ -87,7 +87,7 @@ export const AnimalProfile = () => {
   };
 
   const generateAISummary = async () => {
-    if (!animal || competitions.length === 0) return;
+    if (!animal) return;
 
     setIsGeneratingSummary(true);
     try {
@@ -202,7 +202,7 @@ export const AnimalProfile = () => {
                   </CardTitle>
                   <Button 
                     onClick={generateAISummary} 
-                    disabled={isGeneratingSummary || competitions.length === 0}
+                    disabled={isGeneratingSummary}
                     size="sm"
                   >
                     {isGeneratingSummary ? (
