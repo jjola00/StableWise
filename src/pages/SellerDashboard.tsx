@@ -97,17 +97,31 @@ export const SellerDashboard = () => {
     try {
       setIsLoading(true);
       
-      // First get user profile
-      const { data: profile } = await (supabase as any)
+      // First get user profile, create if doesn't exist
+      let { data: profile } = await (supabase as any)
         .from('profiles')
         .select('id')
         .eq('user_id', userId)
         .single();
 
       if (!profile) {
-        console.log('No profile found for user');
-        setListings([]);
-        return;
+        console.log('No profile found for user, creating one...');
+        const { data: newProfile, error: profileError } = await (supabase as any)
+          .from('profiles')
+          .insert({
+            user_id: userId,
+            contact_email: user?.email || null,
+            stable_name: user?.user_metadata?.name || null
+          })
+          .select('id')
+          .single();
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          setListings([]);
+          return;
+        }
+        profile = newProfile;
       }
 
       // Then get listings
@@ -158,14 +172,28 @@ export const SellerDashboard = () => {
 
       if (animalError) throw animalError;
 
-      // Get user profile
-      const { data: profile } = await (supabase as any)
+      // Get user profile, create if doesn't exist
+      let { data: profile } = await (supabase as any)
         .from('profiles')
         .select('id')
         .eq('user_id', session.user.id)
         .single();
 
-      if (!profile) throw new Error('Profile not found');
+      if (!profile) {
+        console.log('No profile found, creating one...');
+        const { data: newProfile, error: profileError } = await (supabase as any)
+          .from('profiles')
+          .insert({
+            user_id: session.user.id,
+            contact_email: session.user.email || null,
+            stable_name: session.user.user_metadata?.name || null
+          })
+          .select('id')
+          .single();
+
+        if (profileError) throw new Error(`Failed to create profile: ${profileError.message}`);
+        profile = newProfile;
+      }
 
       // Create listing
       let finalDescription = listingDescription;
