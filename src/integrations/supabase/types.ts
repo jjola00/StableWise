@@ -14,7 +14,325 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      animals: {
+        Row: {
+          age: number | null
+          breed: string | null
+          coloring: string | null
+          country: string | null
+          created_at: string
+          dam: string | null
+          height_cm: number | null
+          id: string
+          image_urls: string[] | null
+          is_pony: boolean
+          microchip_number: string | null
+          name: string
+          national_representation: boolean | null
+          passport_number: string | null
+          registration_info: Json | null
+          sire: string | null
+          updated_at: string
+        }
+        Insert: {
+          age?: number | null
+          breed?: string | null
+          coloring?: string | null
+          country?: string | null
+          created_at?: string
+          dam?: string | null
+          height_cm?: number | null
+          id?: string
+          image_urls?: string[] | null
+          is_pony?: boolean
+          microchip_number?: string | null
+          name: string
+          national_representation?: boolean | null
+          passport_number?: string | null
+          registration_info?: Json | null
+          sire?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age?: number | null
+          breed?: string | null
+          coloring?: string | null
+          country?: string | null
+          created_at?: string
+          dam?: string | null
+          height_cm?: number | null
+          id?: string
+          image_urls?: string[] | null
+          is_pony?: boolean
+          microchip_number?: string | null
+          name?: string
+          national_representation?: boolean | null
+          passport_number?: string | null
+          registration_info?: Json | null
+          sire?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      competition_results: {
+        Row: {
+          animal_id: string
+          competition_date: string | null
+          competition_name: string
+          created_at: string
+          faults: number | null
+          fence_height_cm: number | null
+          id: string
+          location: string | null
+          notes: string | null
+          placement: number | null
+          rider_name: string | null
+          time_seconds: number | null
+          total_competitors: number | null
+        }
+        Insert: {
+          animal_id: string
+          competition_date?: string | null
+          competition_name: string
+          created_at?: string
+          faults?: number | null
+          fence_height_cm?: number | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          placement?: number | null
+          rider_name?: string | null
+          time_seconds?: number | null
+          total_competitors?: number | null
+        }
+        Update: {
+          animal_id?: string
+          competition_date?: string | null
+          competition_name?: string
+          created_at?: string
+          faults?: number | null
+          fence_height_cm?: number | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          placement?: number | null
+          rider_name?: string | null
+          time_seconds?: number | null
+          total_competitors?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competition_results_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      for_sale_listings: {
+        Row: {
+          ai_generated_description: string | null
+          animal_id: string
+          contact_info: string | null
+          created_at: string
+          description: string | null
+          featured: boolean | null
+          id: string
+          is_active: boolean | null
+          price: number | null
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          ai_generated_description?: string | null
+          animal_id: string
+          contact_info?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          price?: number | null
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          ai_generated_description?: string | null
+          animal_id?: string
+          contact_info?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          price?: number | null
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "for_sale_listings_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "for_sale_listings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      horses: {
+        Row: {
+          admin_nf: string | null
+          breed: string | null
+          color: string | null
+          country_of_birth: string | null
+          dam: string | null
+          date_of_birth: string | null
+          fei_id: string | null
+          id: string
+          is_pony: boolean | null
+          last_scraped_at: string | null
+          microchip: string | null
+          name: string | null
+          sex: string | null
+          sire: string | null
+          sire_of_dam: string | null
+          studbook: string | null
+          ueln: string | null
+          verified_source: string | null
+        }
+        Insert: {
+          admin_nf?: string | null
+          breed?: string | null
+          color?: string | null
+          country_of_birth?: string | null
+          dam?: string | null
+          date_of_birth?: string | null
+          fei_id?: string | null
+          id?: string
+          is_pony?: boolean | null
+          last_scraped_at?: string | null
+          microchip?: string | null
+          name?: string | null
+          sex?: string | null
+          sire?: string | null
+          sire_of_dam?: string | null
+          studbook?: string | null
+          ueln?: string | null
+          verified_source?: string | null
+        }
+        Update: {
+          admin_nf?: string | null
+          breed?: string | null
+          color?: string | null
+          country_of_birth?: string | null
+          dam?: string | null
+          date_of_birth?: string | null
+          fei_id?: string | null
+          id?: string
+          is_pony?: boolean | null
+          last_scraped_at?: string | null
+          microchip?: string | null
+          name?: string | null
+          sex?: string | null
+          sire?: string | null
+          sire_of_dam?: string | null
+          studbook?: string | null
+          ueln?: string | null
+          verified_source?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          contact_email: string | null
+          country: string | null
+          created_at: string
+          id: string
+          is_verified_seller: boolean | null
+          stable_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          is_verified_seller?: boolean | null
+          stable_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          is_verified_seller?: boolean | null
+          stable_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      results: {
+        Row: {
+          competition_date: string | null
+          competition_name: string | null
+          event_name: string | null
+          faults: string | null
+          horse_fei_id: string | null
+          id: string
+          location: string | null
+          obstacle_height_cm: number | null
+          result_place: string | null
+          rider_name: string | null
+          show_name: string | null
+        }
+        Insert: {
+          competition_date?: string | null
+          competition_name?: string | null
+          event_name?: string | null
+          faults?: string | null
+          horse_fei_id?: string | null
+          id?: string
+          location?: string | null
+          obstacle_height_cm?: number | null
+          result_place?: string | null
+          rider_name?: string | null
+          show_name?: string | null
+        }
+        Update: {
+          competition_date?: string | null
+          competition_name?: string | null
+          event_name?: string | null
+          faults?: string | null
+          horse_fei_id?: string | null
+          id?: string
+          location?: string | null
+          obstacle_height_cm?: number | null
+          result_place?: string | null
+          rider_name?: string | null
+          show_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "results_horse_fei_id_fkey"
+            columns: ["horse_fei_id"]
+            isOneToOne: false
+            referencedRelation: "horses"
+            referencedColumns: ["fei_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
