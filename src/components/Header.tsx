@@ -41,7 +41,10 @@ export const Header = () => {
 
         {/* Right – Desktop nav */}
         <nav className="hidden md:flex items-center space-x-6">
-          <Link to="/for-sale" className="text-foreground hover:text-primary transition-colors">
+          <Link
+            to="/for-sale"
+            className="px-3 py-1.5 rounded-md bg-[#00a2b1] text-white hover:bg-[#0093a1] transition-colors"
+          >
             For Sale
           </Link>
           {user ? (
