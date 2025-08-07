@@ -21,20 +21,23 @@ serve(async (req) => {
 
     const prompt = `You are an expert equestrian analyst specializing in sport horse and pony performance evaluation. 
 
-Create a professional, data-driven performance summary for ${animalName}, a ${animalType}. Base your analysis strictly on the following competition results:
+Create a professional, data-driven performance summary for ${animalName}, a ${animalType}, covering their entire competitive career. Base your analysis strictly on the following competition results:
 
-${competitionResults.map((result: any) => 
+${competitionResults.length > 0 ? competitionResults.map((result: any) => 
   `- ${result.competition_name} (${result.competition_date}): ${result.fence_height_cm}cm fences, ${result.faults} faults, placed ${result.placement}/${result.total_competitors}, rider: ${result.rider_name}, location: ${result.location}`
-).join('\n')}
+).join('\n') : 'No competition results available yet for this animal.'}
 
 Your summary should:
-1. Be 2-3 concise paragraphs
-2. Highlight key strengths and performance patterns
-3. Note progression or consistency trends
-4. Mention notable achievements
-5. Use professional equestrian terminology
-6. Be factual and based only on the provided data
-7. Not speculate about price or market value
+1. Be 2-3 concise, readable paragraphs (avoid overly technical jargon)
+2. Analyze their complete competitive career trajectory
+3. Highlight notable competitions (especially prestigious venues like HOYS, Hickstead, Dublin Horse Show, WEF, etc.)
+4. Identify key strengths, consistency patterns, and performance under pressure
+5. Note progression over time and adaptability to different venues/conditions
+6. Mention standout performances and any championship-level appearances
+7. Use professional but accessible equestrian terminology
+8. Be factual and based only on the provided data
+9. Not speculate about price or market value
+10. If no results available, focus on the potential and characteristics typical of the breed/type
 
 Write in a confident, professional tone suitable for serious buyers and sellers in the international sport horse market.`;
 

@@ -8,14 +8,19 @@ export const HomePage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/5 via-background to-accent/10 py-20">
+      <section 
+        className="relative py-20 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/78ffd265-828c-442f-b071-428b39442203.png')`,
+        }}
+      >
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             Transparent Sport Horse
             <br />
             <span className="text-primary">& Pony Sales</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
             Access verified performance data, competition histories, and AI-powered insights for international sport horses and ponies. No guesswork, just facts.
           </p>
           

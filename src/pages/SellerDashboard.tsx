@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { User, Session } from "@supabase/supabase-js";
-import { Loader2, Plus, Sparkles, Crown } from "lucide-react";
+import { Loader2, Plus, Sparkles, Crown, Upload, X, Star } from "lucide-react";
+import { EditListingModal } from "@/components/EditListingModal";
 
 interface AnimalForm {
   name: string;
@@ -25,6 +26,8 @@ interface AnimalForm {
   passport_number: string;
   country: string;
   is_pony: boolean;
+  national_representation: boolean;
+  image_urls: string[];
 }
 
 interface Listing {
@@ -32,10 +35,13 @@ interface Listing {
   description: string;
   ai_generated_description: string;
   is_active: boolean;
+  price: number;
+  contact_info: string;
   animals: {
     id: string;
     name: string;
     is_pony: boolean;
+    national_representation: boolean;
   };
 }
 
@@ -59,12 +65,66 @@ export const SellerDashboard = () => {
     passport_number: "",
     country: "",
     is_pony: false,
+    national_representation: false,
+    image_urls: [],
   });
   const [listingDescription, setListingDescription] = useState("");
   const [useAIDescription, setUseAIDescription] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [editingListing, setEditingListing] = useState<string | null>(null);
   
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const fileName = `${Date.now()}-${file.name}`;
+        const { data, error } = await supabase.storage
+          .from('horse-images')
+          .upload(fileName, file);
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('horse-images')
+          .getPublicUrl(fileName);
+
+        return publicUrl;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setNewAnimal(prev => ({
+        ...prev,
+        image_urls: [...prev.image_urls, ...uploadedUrls]
+      }));
+
+      toast({
+        title: "Success",
+        description: "Images uploaded successfully!",
+      });
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload images",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setNewAnimal(prev => ({
+      ...prev,
+      image_urls: prev.image_urls.filter((_, i) => i !== index)
+    }));
+  };
 
   useEffect(() => {
     // Check authentication
@@ -128,8 +188,8 @@ export const SellerDashboard = () => {
       const { data, error } = await (supabase as any)
         .from('for_sale_listings')
         .select(`
-          id, description, ai_generated_description, is_active,
-          animals (id, name, is_pony)
+          id, description, ai_generated_description, is_active, price, contact_info,
+          animals (id, name, is_pony, national_representation)
         `)
         .eq('seller_id', profile.id)
         .order('created_at', { ascending: false });
@@ -249,6 +309,8 @@ export const SellerDashboard = () => {
         passport_number: "",
         country: "",
         is_pony: false,
+        national_representation: false,
+        image_urls: [],
       });
       setListingDescription("");
       setUseAIDescription(false);
@@ -328,7 +390,12 @@ export const SellerDashboard = () => {
                   <div key={listing.id} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-semibold">{listing.animals.name}</h4>
+                        <h4 className="font-semibold flex items-center space-x-2">
+                          <span>{listing.animals.name}</span>
+                          {listing.animals.national_representation && (
+                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                          )}
+                        </h4>
                         <div className="flex items-center space-x-2 mt-1">
                           <Badge variant={listing.animals.is_pony ? "secondary" : "default"}>
                             {listing.animals.is_pony ? 'Pony' : 'Horse'}
@@ -342,13 +409,24 @@ export const SellerDashboard = () => {
                               AI Description
                             </Badge>
                           )}
+                          {listing.price && (
+                            <Badge variant="outline" className="text-xs">
+                              ${listing.price.toLocaleString()}
+                            </Badge>
+                          )}
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={`/animal/${listing.animals.id}`} target="_blank">
-                          View Profile
-                        </a>
-                      </Button>
+                      <div className="flex space-x-2">
+                        <EditListingModal 
+                          listing={listing} 
+                          onListingUpdated={() => fetchUserListings(session?.user?.id || '')} 
+                        />
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={`/animal/${listing.animals.id}`} target="_blank">
+                            View Profile
+                          </a>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -475,14 +553,83 @@ export const SellerDashboard = () => {
                 </div>
               </div>
 
-              {/* Pony/Horse designation */}
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="is_pony"
-                  checked={newAnimal.is_pony}
-                  onCheckedChange={(checked) => setNewAnimal({...newAnimal, is_pony: !!checked})}
-                />
-                <Label htmlFor="is_pony">This is a pony (not a horse)</Label>
+              {/* Pony/Horse designation and National Representation */}
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="is_pony"
+                    checked={newAnimal.is_pony}
+                    onCheckedChange={(checked) => setNewAnimal({...newAnimal, is_pony: !!checked})}
+                  />
+                  <Label htmlFor="is_pony">This is a pony (not a horse)</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="national_representation"
+                    checked={newAnimal.national_representation}
+                    onCheckedChange={(checked) => setNewAnimal({...newAnimal, national_representation: !!checked})}
+                  />
+                  <Label htmlFor="national_representation" className="flex items-center space-x-1">
+                    <Star className="w-4 h-4 text-yellow-500" />
+                    <span>Has represented country in competition</span>
+                  </Label>
+                </div>
+              </div>
+
+              {/* Image Upload */}
+              <div>
+                <Label>Photos</Label>
+                <div className="mt-2">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="image-upload"
+                    disabled={uploadingImages}
+                  />
+                  <Label
+                    htmlFor="image-upload"
+                    className="flex items-center justify-center w-full p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary/50 transition-colors"
+                  >
+                    <div className="text-center">
+                      {uploadingImages ? (
+                        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-primary" />
+                      ) : (
+                        <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        {uploadingImages ? 'Uploading...' : 'Click to upload photos or drag and drop'}
+                      </p>
+                    </div>
+                  </Label>
+                </div>
+                
+                {/* Image Preview */}
+                {newAnimal.image_urls.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                    {newAnimal.image_urls.map((url, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={url}
+                          alt={`Upload ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index)}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Description */}

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Trophy, MapPin, Calendar, User, Sparkles } from "lucide-react";
+import { Loader2, Trophy, MapPin, Calendar, User, Sparkles, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Animal {
@@ -20,6 +20,8 @@ interface Animal {
   passport_number: string;
   country: string;
   is_pony: boolean;
+  national_representation: boolean;
+  image_urls: string[];
 }
 
 interface CompetitionResult {
@@ -140,15 +142,48 @@ export const AnimalProfile = () => {
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4 max-w-6xl">
+        {/* Image Header */}
+        {animal.image_urls && animal.image_urls.length > 0 && (
+          <div className="mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {animal.image_urls.slice(0, 3).map((url, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={url}
+                    alt={`${animal.name} - Photo ${index + 1}`}
+                    className="w-full h-64 object-cover rounded-lg shadow-lg"
+                  />
+                </div>
+              ))}
+            </div>
+            {animal.image_urls.length > 3 && (
+              <p className="text-center text-muted-foreground mt-2">
+                +{animal.image_urls.length - 3} more photos
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">{animal.name}</h1>
+              <h1 className="text-4xl font-bold text-foreground mb-2 flex items-center space-x-2">
+                <span>{animal.name}</span>
+                {animal.national_representation && (
+                  <Star className="w-8 h-8 text-yellow-500 fill-yellow-500" />
+                )}
+              </h1>
               <div className="flex items-center space-x-4">
                 <Badge variant={animal.is_pony ? "secondary" : "default"}>
                   {animal.is_pony ? 'Pony' : 'Horse'}
                 </Badge>
+                {animal.national_representation && (
+                  <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+                    <Star className="w-3 h-3 mr-1 fill-yellow-500" />
+                    National Representation
+                  </Badge>
+                )}
                 <span className="text-muted-foreground">{animal.age} years • {animal.height_cm}cm</span>
                 <span className="text-muted-foreground">{animal.breed}</span>
               </div>

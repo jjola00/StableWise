@@ -8,12 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { EmailVerification } from "@/components/EmailVerification";
 
 export const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [signUpEmail, setSignUpEmail] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -77,15 +80,18 @@ export const AuthPage = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: `${window.location.origin}/seller-dashboard`
         }
       });
 
       if (error) throw error;
 
+      setSignUpEmail(email);
+      setShowEmailVerification(true);
+      
       toast({
         title: "Registration Successful",
-        description: "Please check your email to confirm your account",
+        description: "Please check your email for a verification code",
       });
     } catch (error: any) {
       toast({
@@ -96,6 +102,11 @@ export const AuthPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleVerificationComplete = () => {
+    setShowEmailVerification(false);
+    navigate("/seller-dashboard");
   };
 
   const handleGoogleSignIn = async () => {
@@ -119,6 +130,17 @@ export const AuthPage = () => {
       setIsGoogleLoading(false);
     }
   };
+
+  if (showEmailVerification) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4">
+        <EmailVerification 
+          email={signUpEmail} 
+          onVerificationComplete={handleVerificationComplete}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4">
