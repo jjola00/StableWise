@@ -15,6 +15,14 @@ serve(async (req) => {
     const { toEmail, fromName, fromEmail, phone, message } = await req.json();
     const apiKey = Deno.env.get("RESEND_API_KEY");
 
+    if (!apiKey) {
+      console.error("RESEND_API_KEY is not set.");
+      return new Response("Missing API key", {
+        status: 500,
+      });
+    }
+
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -22,7 +30,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "StableWise <info@stablewise.com>",
+        from: "StableWise <onboarding@resend.dev>",
         to: toEmail,
         subject: `New message from ${fromName} via StableWise`,
         html: `
