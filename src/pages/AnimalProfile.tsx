@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Trophy, MapPin, Calendar, User, Sparkles, Star } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 interface Animal {
@@ -44,6 +47,15 @@ export const AnimalProfile = () => {
   const [aiSummary, setAiSummary] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [contactInfo, setContactInfo] = useState<string | null>(null);
+  const [sellerEmail, setSellerEmail] = useState<string | null>(null);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+
+  const [formName, setFormName] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formPhone, setFormPhone] = useState("");
+  const [formMessage, setFormMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -75,6 +87,25 @@ export const AnimalProfile = () => {
 
       if (competitionError) throw competitionError;
       setCompetitions(competitionData || []);
+
+      // Fetch active listing to retrieve seller contact info (if any)
+      const { data: listingData } = await (supabase as any)
+        .from('for_sale_listings')
+        .select('contact_info, seller_id')
+        .eq('animal_id', id)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      setContactInfo(listingData?.contact_info ?? null);
+
+      if (listingData?.seller_id) {
+        const { data: profileData } = await (supabase as any)
+          .from('profiles')
+          .select('contact_email')
+          .eq('id', listingData.seller_id)
+          .single();
+        setSellerEmail(profileData?.contact_email ?? null);
+      }
 
     } catch (error) {
       console.error('Error fetching animal data:', error);
@@ -138,6 +169,56 @@ export const AnimalProfile = () => {
       </div>
     );
   }
+
+  const contactLink = contactInfo && contactInfo.includes('@') ? `mailto:${contactInfo}` : undefined;
+
+  const handleSendMessage = async () => {
+    // Trim inputs to avoid accidental spaces
+    const name = formName.trim();
+    const email = formEmail.trim();
+    const phone = formPhone.trim();
+    const messageText = formMessage.trim();
+
+    if (!name || !email || !messageText) {
+      toast({
+        title: "Missing fields",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const { error } = await supabase.functions.invoke('contact-seller', {
+        body: {
+          toEmail: sellerEmail || contactInfo,
+          fromName: name,
+          fromEmail: email,
+          phone,
+          message: messageText,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message sent",
+        description: "Your message has been delivered to the seller.",
+      });
+      setIsContactOpen(false);
+      // fields will be cleared in onOpenChange handler
+    } catch (err: any) {
+      console.error(err);
+      toast({
+        title: "Failed",
+        description: err.message || "Could not send your message.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -323,6 +404,57 @@ export const AnimalProfile = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* Contact Seller button */}
+            {(sellerEmail || contactInfo) && (
+              <div className="mt-4">
+                <Button className="w-full" onClick={() => setIsContactOpen(true)}>
+                  Contact Seller
+                </Button>
+              </div>
+            )}
+
+            {/* Contact Seller Modal */}
+            <Dialog
+              open={isContactOpen}
+              onOpenChange={(open) => {
+                setIsContactOpen(open);
+                if (!open) {
+                  setFormName("");
+                  setFormEmail("");
+                  setFormPhone("");
+                  setFormMessage("");
+                }
+              }}
+            >
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Contact Seller</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="cs-name">Name *</Label>
+                    <Input id="cs-name" value={formName} onChange={(e)=>setFormName(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label htmlFor="cs-email">Email *</Label>
+                    <Input id="cs-email" type="email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" value={formEmail} onChange={(e)=>setFormEmail(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label htmlFor="cs-phone">Phone</Label>
+                    <Input id="cs-phone" type="tel" value={formPhone} onChange={(e)=>setFormPhone(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label htmlFor="cs-msg">Message *</Label>
+                    <textarea id="cs-msg" className="w-full border rounded-md p-2" rows={4} value={formMessage} onChange={(e)=>setFormMessage(e.target.value)} required />
+                  </div>
+                  <Button onClick={handleSendMessage} disabled={isSending || !formName || !formEmail || !formMessage} className="w-full">
+                    {isSending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    Send Message
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>

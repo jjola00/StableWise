@@ -15,12 +15,18 @@ export const HomePage = () => {
         }}
       >
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+          {/* New main heading */}
+          <h1 className="text-6xl md:text-7xl font-extrabold text-white mb-2">
+            StableWise
+          </h1>
+
+          {/* Existing tagline moved down one level and resized */}
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Transparent Sport Horse
             <br />
             <span className="text-primary">& Pony Sales</span>
-          </h1>
-          <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
+          </h2>
+          <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto">
             Access verified performance data, competition histories, and AI-powered insights for international sport horses and ponies. No guesswork, just facts.
           </p>
           
