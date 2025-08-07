@@ -6,7 +6,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -16,12 +15,9 @@ serve(async (req) => {
     const apiKey = Deno.env.get("RESEND_API_KEY");
 
     if (!apiKey) {
-      console.error("RESEND_API_KEY is not set.");
-      return new Response("Missing API key", {
-        status: 500,
-      });
+      console.error("Missing RESEND_API_KEY");
+      return new Response("Missing API key", { status: 500 });
     }
-
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -30,7 +26,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "StableWise <onboarding@resend.dev>",
+        from: "StableWise <onboarding@resend.dev>", // fallback sender
         to: toEmail,
         subject: `New message from ${fromName} via StableWise`,
         html: `
@@ -44,16 +40,19 @@ serve(async (req) => {
 
     const data = await response.json();
 
+    if (!response.ok) {
+      console.error("Resend API error:", data);
+    }
+
     return new Response(JSON.stringify(data), {
       status: response.status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-
-  } catch (err) {
-    console.error("Email send error:", err);
-    return new Response(JSON.stringify({ error: err.message || "Unknown error" }), {
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: corsHeaders,
     });
   }
 });
