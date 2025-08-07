@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Loader2, MapPin, Calendar, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { countryToFlag } from "@/lib/utils";
 
 interface ForSaleListing {
   id: string;
@@ -37,6 +38,7 @@ interface ForSaleListing {
 export const ForSale = () => {
   const [listings, setListings] = useState<ForSaleListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [typeFilter, setTypeFilter] = useState<'all' | 'horse' | 'pony'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -85,6 +87,10 @@ export const ForSale = () => {
     );
   }
 
+  const filteredListings = listings.filter((l) =>
+    typeFilter === 'all' ? true : l.animals.is_pony === (typeFilter === 'pony')
+  );
+
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4">
@@ -96,10 +102,32 @@ export const ForSale = () => {
           </p>
         </div>
 
+        {/* Filter Controls */}
+        <div className="flex items-center justify-center space-x-4 mb-8">
+          <Button
+            variant={typeFilter === 'all' ? 'default' : 'outline'}
+            onClick={() => setTypeFilter('all')}
+          >
+            All
+          </Button>
+          <Button
+            variant={typeFilter === 'horse' ? 'default' : 'outline'}
+            onClick={() => setTypeFilter('horse')}
+          >
+            Horses
+          </Button>
+          <Button
+            variant={typeFilter === 'pony' ? 'default' : 'outline'}
+            onClick={() => setTypeFilter('pony')}
+          >
+            Ponies
+          </Button>
+        </div>
+
         {/* Listings Grid */}
-        {listings.length > 0 ? (
+        {filteredListings.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {listings.map((listing) => (
+            {filteredListings.map((listing) => (
               <Card key={listing.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 {listing.featured && (
                   <div className="bg-primary text-primary-foreground px-4 py-2 text-sm font-medium">
@@ -110,7 +138,14 @@ export const ForSale = () => {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-xl">{listing.animals.name}</CardTitle>
+                      <CardTitle className="text-xl flex items-center">
+                        <span>{listing.animals.name}</span>
+                        {listing.animals.country && (
+                          <span className="ml-2 text-lg">
+                            {countryToFlag(listing.animals.country)}
+                          </span>
+                        )}
+                      </CardTitle>
                       <div className="flex items-center space-x-2 mt-1">
                         <Badge variant={listing.animals.is_pony ? "secondary" : "default"}>
                           {listing.animals.is_pony ? 'Pony' : 'Horse'}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +46,21 @@ interface Listing {
   };
 }
 
+// Common sport-horse and pony breeds (extend as needed)
+const BREEDS = [
+  "Warmblood",
+  "Thoroughbred",
+  "Arabian",
+  "Quarter Horse",
+  "Hanoverian",
+  "Dutch Warmblood",
+  "Holsteiner",
+  "Oldenburg",
+  "Trakehner",
+  "Welsh Pony",
+  "Connemara Pony",
+];
+
 export const SellerDashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -72,9 +88,19 @@ export const SellerDashboard = () => {
   const [useAIDescription, setUseAIDescription] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [editingListing, setEditingListing] = useState<string | null>(null);
+
+  // Ref to the add-listing form so we can scroll to it when opened
+  const formRef = useRef<HTMLDivElement>(null);
   
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Auto-scroll to the listing form when it becomes visible
+  useEffect(() => {
+    if (showAddForm && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [showAddForm]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -444,11 +470,48 @@ export const SellerDashboard = () => {
 
         {/* Add New Animal Form */}
         {showAddForm && (
-          <Card>
+          <Card ref={formRef}>
             <CardHeader>
               <CardTitle>List New Animal for Sale</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Animal Type */}
+              <div className="mb-6">
+                <Label>Animal Type</Label>
+                <RadioGroup
+                  className="flex space-x-8 mt-2"
+                  value={newAnimal.is_pony ? "pony" : "horse"}
+                  onValueChange={(val) =>
+                    setNewAnimal({ ...newAnimal, is_pony: val === "pony" })
+                  }
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="horse" id="animal-type-horse" />
+                    <Label
+                      htmlFor="animal-type-horse"
+                      className="flex items-center space-x-1"
+                    >
+                      <span role="img" aria-label="Horse">
+                        🐎
+                      </span>
+                      <span>Horse</span>
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pony" id="animal-type-pony" />
+                    <Label
+                      htmlFor="animal-type-pony"
+                      className="flex items-center space-x-1"
+                    >
+                      <span role="img" aria-label="Pony">
+                        🐴
+                      </span>
+                      <span>Pony</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -462,12 +525,23 @@ export const SellerDashboard = () => {
                 </div>
                 <div>
                   <Label htmlFor="breed">Breed *</Label>
-                  <Input
-                    id="breed"
+                  <Select
                     value={newAnimal.breed}
-                    onChange={(e) => setNewAnimal({...newAnimal, breed: e.target.value})}
-                    placeholder="e.g. Warmblood, Thoroughbred"
-                  />
+                    onValueChange={(value) =>
+                      setNewAnimal({ ...newAnimal, breed: value })
+                    }
+                  >
+                    <SelectTrigger id="breed">
+                      <SelectValue placeholder="Select breed" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BREEDS.map((breed) => (
+                        <SelectItem key={breed} value={breed}>
+                          {breed}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="age">Age *</Label>
@@ -553,24 +627,20 @@ export const SellerDashboard = () => {
                 </div>
               </div>
 
-              {/* Pony/Horse designation and National Representation */}
+              {/* National Representation */}
               <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="is_pony"
-                    checked={newAnimal.is_pony}
-                    onCheckedChange={(checked) => setNewAnimal({...newAnimal, is_pony: !!checked})}
-                  />
-                  <Label htmlFor="is_pony">This is a pony (not a horse)</Label>
-                </div>
-                
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="national_representation"
                     checked={newAnimal.national_representation}
-                    onCheckedChange={(checked) => setNewAnimal({...newAnimal, national_representation: !!checked})}
+                    onCheckedChange={(checked) =>
+                      setNewAnimal({ ...newAnimal, national_representation: !!checked })
+                    }
                   />
-                  <Label htmlFor="national_representation" className="flex items-center space-x-1">
+                  <Label
+                    htmlFor="national_representation"
+                    className="flex items-center space-x-1"
+                  >
                     <Star className="w-4 h-4 text-yellow-500" />
                     <span>Has represented country in competition</span>
                   </Label>
