@@ -9,6 +9,8 @@ import { ForSale } from "./pages/ForSale";
 import { AuthPage } from "./pages/AuthPage";
 import { SellerDashboard } from "./pages/SellerDashboard";
 import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
+import { Waitlist } from "./pages/Waitlist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,8 +28,10 @@ const App = () => (
           <Route path="/for-sale" element={<ForSale />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/seller-dashboard" element={<SellerDashboard />} />
+          <Route path="/waitlist" element={<Waitlist />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <Footer />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -3,10 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { TrendingUp, Shield, Search, Database } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 export const HomePage = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>StableWise – Transparent Sport Horse & Pony Sales</title>
+        <meta name="description" content="Join the StableWise waitlist and get €100 credits. Discover verified data and AI insights for sport horse & pony sales." />
+        <link rel="canonical" href={(typeof window !== 'undefined') ? window.location.origin + '/' : 'https://stablewise.app/'} />
+      </Helmet>
       {/* Hero Section */}
       <section 
         className="relative py-20 bg-cover bg-center bg-no-repeat"
@@ -38,6 +44,11 @@ export const HomePage = () => {
             <Link to="/for-sale">
               <Button size="lg" className="w-full sm:w-auto">
                 Browse For Sale
+              </Button>
+            </Link>
+            <Link to="/waitlist">
+              <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+                Join Waitlist – Get €100 in Credits
               </Button>
             </Link>
           </div>
