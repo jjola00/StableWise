@@ -56,6 +56,8 @@ export const AnimalProfile = () => {
   const [formPhone, setFormPhone] = useState("");
   const [formMessage, setFormMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const EMAIL_FN_URL =
+  import.meta.env.VITE_EMAIL_FN_URL || "/.netlify/functions/send-email";
   const { toast } = useToast();
 
   useEffect(() => {
@@ -173,12 +175,11 @@ export const AnimalProfile = () => {
   const contactLink = contactInfo && contactInfo.includes('@') ? `mailto:${contactInfo}` : undefined;
 
   const handleSendMessage = async () => {
-    // Trim inputs to avoid accidental spaces
     const name = formName.trim();
     const email = formEmail.trim();
     const phone = formPhone.trim();
     const messageText = formMessage.trim();
-
+  
     if (!name || !email || !messageText) {
       toast({
         title: "Missing fields",
@@ -187,27 +188,38 @@ export const AnimalProfile = () => {
       });
       return;
     }
-
+    if (!sellerEmail && !contactInfo) {
+      toast({
+        title: "No seller email",
+        description: "This listing has no contact email yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+  
     setIsSending(true);
     try {
-      const { error } = await supabase.functions.invoke('contact-seller', {
-        body: {
+      const res = await fetch(EMAIL_FN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           toEmail: sellerEmail || contactInfo,
           fromName: name,
           fromEmail: email,
           phone,
           message: messageText,
-        },
+        }),
       });
-
-      if (error) throw error;
-
+  
+      const data = await res.json();
+  
+      if (!res.ok) throw new Error(data?.error || "Email send failed");
+  
       toast({
         title: "Message sent",
         description: "Your message has been delivered to the seller.",
       });
       setIsContactOpen(false);
-      // fields will be cleared in onOpenChange handler
     } catch (err: any) {
       console.error(err);
       toast({
@@ -219,6 +231,7 @@ export const AnimalProfile = () => {
       setIsSending(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-background py-8">
