@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { toEmail, fromName, fromEmail, phone, message } = await req.json();
+    const { toEmail } = (await req.json().catch(() => ({}) )) as { toEmail?: string };
 
     const smtpHost = Deno.env.get("ZOHO_SMTP_HOST") ?? "smtp.zoho.com";
     const smtpPort = Number(Deno.env.get("ZOHO_SMTP_PORT") ?? 465);
@@ -36,30 +36,34 @@ serve(async (req) => {
       await client.connect({ hostname: smtpHost, port: smtpPort, username: smtpUser, password: smtpPass });
     }
 
-    const subject = `New message from ${fromName} via StableWise`;
+    const recipient = toEmail || fromAddress;
+    const subject = "StableWise SMTP Test Email";
+    const now = new Date().toISOString();
     const html = `
-      <p><strong>Name:</strong> ${fromName}</p>
-      <p><strong>Email:</strong> ${fromEmail}</p>
-      <p><strong>Phone:</strong> ${phone}</p>
-      <p><strong>Message:</strong><br/>${message}</p>
+      <h1>StableWise SMTP Test</h1>
+      <p>This is a test email sent via Zoho SMTP from StableWise.</p>
+      <p><strong>Timestamp:</strong> ${now}</p>
+      <p><strong>Environment:</strong> Supabase Edge Functions (Deno)</p>
+      <hr />
+      <p>If you received this, SMTP is configured correctly.</p>
     `;
 
     const sendResult = await client.send({
       from: `StableWise <${fromAddress}>`,
-      to: toEmail,
+      to: recipient,
       subject,
-      content: html.replace(/<[^>]+>/g, ""),
+      content: `StableWise SMTP Test (plain text) - ${now}`,
       html,
     });
 
     await client.close();
 
-    return new Response(JSON.stringify({ ok: true, result: sendResult }), {
+    return new Response(JSON.stringify({ ok: true, result: sendResult, to: recipient }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Unexpected error in contact-seller:", error);
+    console.error("Unexpected error in send-test-email:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
       headers: corsHeaders,
