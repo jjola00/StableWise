@@ -49,7 +49,7 @@ serve(async (req) => {
     `;
 
     const sendResult = await client.send({
-      from: `StableWise <${fromAddress}>`,
+      from: fromAddress,
       to: recipient,
       subject,
       content: `StableWise SMTP Test (plain text) - ${now}`,

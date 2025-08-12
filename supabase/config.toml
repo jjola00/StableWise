@@ -2,10 +2,10 @@ project_id = "sjiclodfxmwrdtobnrbt"
 [functions.contact-seller]
 enabled = true
 verify_jwt = true
-import_map = "functions/contact-seller/deno.json"
-entrypoint = "functions/contact-seller/index.ts"
+import_map = "supabase/functions/contact-seller/deno.json"
+entrypoint = "supabase/functions/contact-seller/index.ts"
 
 [functions.send-test-email]
 enabled = true
 verify_jwt = true
-entrypoint = "functions/send-test-email/index.ts"
+entrypoint = "supabase/functions/send-test-email/index.ts"
