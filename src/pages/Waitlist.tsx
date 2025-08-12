@@ -7,7 +7,7 @@ import { useMemo, useRef } from "react";
 
 export const Waitlist = () => {
   const url = useMemo(() =>
-    typeof window !== 'undefined' ? window.location.origin + '/waitlist' : 'https://stablewise.app/waitlist', []);
+    typeof window !== 'undefined' ? window.location.origin + '/waitlist' : 'https://stablewise.org/waitlist', []);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const handleDownload = () => {

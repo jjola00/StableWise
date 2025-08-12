@@ -11,7 +11,7 @@ export const HomePage = () => {
       <Helmet>
         <title>StableWise – Transparent Sport Horse & Pony Sales</title>
         <meta name="description" content="Join the StableWise waitlist and get €100 credits. Discover verified data and AI insights for sport horse & pony sales." />
-        <link rel="canonical" href={(typeof window !== 'undefined') ? window.location.origin + '/' : 'https://stablewise.app/'} />
+        <link rel="canonical" href={(typeof window !== 'undefined') ? window.location.origin + '/' : 'https://stablewise.org/'} />
       </Helmet>
       {/* Hero Section */}
       <section 
