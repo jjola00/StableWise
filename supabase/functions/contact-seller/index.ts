@@ -14,53 +14,43 @@ serve(async (req) => {
   try {
     const { toEmail, fromName, fromEmail, phone, message } = await req.json();
 
-    const smtpHost = Deno.env.get("ZOHO_SMTP_HOST") ?? "smtp.zoho.com";
-    const smtpPort = Number(Deno.env.get("ZOHO_SMTP_PORT") ?? 465);
-    const smtpUser = Deno.env.get("ZOHO_SMTP_USER") ?? "";
-    const smtpPass = Deno.env.get("ZOHO_SMTP_PASS") ?? "";
-    const fromAddress = Deno.env.get("ZOHO_FROM_EMAIL") ?? "info@stablewise.org";
+    const host = Deno.env.get("ZOHO_SMTP_HOST")!;
+    const port = Number(Deno.env.get("ZOHO_SMTP_PORT") ?? "465");
+    const user = Deno.env.get("ZOHO_SMTP_USER")!;
+    const pass = Deno.env.get("ZOHO_SMTP_PASS")!;
+    const from = Deno.env.get("ZOHO_FROM_EMAIL") ?? user;
 
-    if (!smtpHost || !smtpUser || !smtpPass) {
-      console.error("SMTP configuration missing. Expected ZOHO_SMTP_HOST, ZOHO_SMTP_USER, ZOHO_SMTP_PASS.");
-      return new Response(JSON.stringify({ error: "SMTP configuration missing" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
+    // Zoho requires auth user == from address
     const client = new SmtpClient();
 
-    if (smtpPort === 465) {
-      await client.connectTLS({ hostname: smtpHost, port: smtpPort, username: smtpUser, password: smtpPass });
-    } else {
-      await client.connect({ hostname: smtpHost, port: smtpPort, username: smtpUser, password: smtpPass });
-    }
+    // For 465 (SSL):
+    await client.connectTLS({ hostname: host, port, username: user, password: pass });
+    // If you choose port 587 instead, use:
+    // await client.connect({ hostname: host, port, username: user, password: pass, tls: true });
 
-    const subject = `New message from ${fromName} via StableWise`;
-    const html = `
-      <p><strong>Name:</strong> ${fromName}</p>
-      <p><strong>Email:</strong> ${fromEmail}</p>
-      <p><strong>Phone:</strong> ${phone}</p>
-      <p><strong>Message:</strong><br/>${message}</p>
-    `;
-
-    const sendResult = await client.send({
-      from: `StableWise <${fromAddress}>`,
+    await client.send({
+      from,
       to: toEmail,
-      subject,
-      content: html.replace(/<[^>]+>/g, ""),
-      html,
+      subject: `New message from ${fromName} via StableWise`,
+      // smtp module supports HTML via "html: true" + content
+      content: `
+        <p><strong>Name:</strong> ${fromName}</p>
+        <p><strong>Email:</strong> ${fromEmail}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Message:</strong><br/>${message}</p>
+      `,
+      html: true,
     });
 
     await client.close();
 
-    return new Response(JSON.stringify({ ok: true, result: sendResult }), {
+    return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Unexpected error in contact-seller:", error);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+    console.error("SMTP send failed:", error);
+    return new Response(JSON.stringify({ error: "Email send failed" }), {
       status: 500,
       headers: corsHeaders,
     });
