@@ -21,7 +21,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "StableWise <onboarding@resend.dev>", // fallback sender
+        from: "StableWise <info@stablewise.org>",
         to: toEmail,
         subject: `New message from ${fromName} via StableWise`,
         html: `
