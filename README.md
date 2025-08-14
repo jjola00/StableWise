@@ -76,13 +76,6 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-trick
 
 This app sends all transactional emails via Zoho SMTP.
 
-Required Supabase secrets (already prepared):
-- ZOHO_SMTP_HOST
-- ZOHO_SMTP_PORT (465 for SSL/TLS or 587 for STARTTLS)
-- ZOHO_SMTP_USER (Zoho mailbox user, e.g. info@stablewise.org)
-- ZOHO_SMTP_PASS (app-specific password recommended)
-- ZOHO_FROM_EMAIL (use info@stablewise.org)
-
 Edge Functions:
 - contact-seller: Sends buyer messages to sellers using Zoho SMTP (From: StableWise <info@stablewise.org>).
 - send-test-email: Sends a test email to ZOHO_FROM_EMAIL by default, or to a provided "toEmail" in the request body.

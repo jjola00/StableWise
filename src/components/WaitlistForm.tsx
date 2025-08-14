@@ -27,7 +27,10 @@ export const WaitlistForm = ({ compact = false }: { compact?: boolean }) => {
     reset,
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
+  const EMAIL_FN_URL = import.meta.env.VITE_EMAIL_FN_URL || "/.netlify/functions/send-email";
+
   const onSubmit = async (values: FormValues) => {
+    // 1) Save to Supabase
     const { error } = await (supabase as any).from("waitlist_signups").insert({
       full_name: values.full_name,
       email: values.email,
@@ -44,18 +47,60 @@ export const WaitlistForm = ({ compact = false }: { compact?: boolean }) => {
       return;
     }
 
-    setSubmitted(true);
-    toast({
-      title: "You're in!",
-      description: "You'll receive €100 in StableWise credits at launch.",
-    });
-    reset();
+    // 2) Send confirmation email via Netlify function
+    try {
+      const siteUrl =
+        typeof window !== "undefined" ? window.location.origin : "https://stablewise.org";
+
+      const html = `
+        <div style="font-family: Inter, system-ui, Arial, sans-serif; color: #111; line-height: 1.6; font-size: 14px;">
+          <p>Hi ${values.full_name},</p>
+          <p>Thanks for joining the <strong>StableWise</strong> waitlist! 🎉</p>
+          <p>As an early signup, you’ll receive <strong>€100 in credits</strong> at launch.</p>
+          <p>You can follow our progress or invite friends here:</p>
+          <p><a href="${siteUrl}" target="_blank" rel="noopener noreferrer">${siteUrl}</a></p>
+          <p>Welcome aboard,<br/>The StableWise Team</p>
+        </div>
+      `;
+
+      const res = await fetch(EMAIL_FN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          toEmail: values.email,
+          fromName: "StableWise",
+          fromEmail: "info@stablewise.org",
+          replyTo: "info@stablewise.org",
+          subject: "Welcome to the StableWise Waitlist 🎉",
+          phone: "",
+          message: html,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "Failed to send confirmation email");
+      }
+
+      setSubmitted(true);
+      toast({
+        title: "You're in!",
+        description: "Signup saved and confirmation email sent.",
+      });
+      reset();
+    } catch (err: any) {
+      toast({
+        title: "Email not sent",
+        description: err?.message || "We couldn't send your confirmation email.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (submitted && compact) {
     return (
       <div className="rounded-lg border bg-card p-4 text-center">
-        <p className="text-sm">You're in! 🎉 You'll receive €100 in StableWise credits when we launch.</p>
+        <p className="text-sm">You're in! 🎉 Signup saved and a confirmation email has been sent.</p>
       </div>
     );
   }
@@ -91,7 +136,7 @@ export const WaitlistForm = ({ compact = false }: { compact?: boolean }) => {
       </div>
       {!compact && submitted && (
         <div className="rounded-lg border bg-card p-4 text-center">
-          <p>You're in! 🎉 You'll receive €100 in StableWise credits when we launch.</p>
+          <p>You're in! 🎉 Signup saved and a confirmation email has been sent.</p>
         </div>
       )}
     </form>

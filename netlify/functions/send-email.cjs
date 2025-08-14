@@ -25,7 +25,16 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { toEmail, fromName, fromEmail, phone, message } = JSON.parse(event.body || "{}");
+    const {
+      toEmail,
+      fromName,
+      fromEmail,
+      phone,
+      message,      
+      subject,        
+      replyTo       
+    } = JSON.parse(event.body || "{}");
+
     if (!toEmail || !fromName || !fromEmail || !message) {
       return {
         statusCode: 400,
@@ -35,28 +44,25 @@ exports.handler = async (event) => {
     }
 
     const transporter = nodemailer.createTransport({
-      host: process.env.ZOHO_SMTP_HOST,           // smtp.zoho.eu
-      port: Number(process.env.ZOHO_SMTP_PORT),   // 465 or 587
-      secure: String(process.env.ZOHO_SMTP_PORT) === "465", // SSL for 465
+      host: process.env.ZOHO_SMTP_HOST,           
+      port: Number(process.env.ZOHO_SMTP_PORT),   
+      secure: String(process.env.ZOHO_SMTP_PORT) === "465",
       auth: {
-        user: process.env.ZOHO_SMTP_USER,         // info@stablewise.org
-        pass: process.env.ZOHO_SMTP_PASS,         // Zoho app password
+        user: process.env.ZOHO_SMTP_USER,         
+        pass: process.env.ZOHO_SMTP_PASS,
       },
     });
 
-    const fromAddress = process.env.ZOHO_FROM_EMAIL || process.env.ZOHO_SMTP_USER;
+    const fromAddress  = process.env.ZOHO_FROM_EMAIL || process.env.ZOHO_SMTP_USER;
+    const mailSubject  = subject || `New message from ${fromName} via StableWise`;
+    const mailReplyTo  = replyTo || `${fromName} <${fromEmail}>`;
 
     const info = await transporter.sendMail({
       from: `StableWise <${fromAddress}>`,
       to: toEmail,
-      subject: `New message from ${fromName} via StableWise`,
-      html: `
-        <p><strong>Name:</strong> ${fromName}</p>
-        <p><strong>Email:</strong> ${fromEmail}</p>
-        <p><strong>Phone:</strong> ${phone || ""}</p>
-        <p><strong>Message:</strong><br>${message}</p>
-      `,
-      replyTo: `${fromName} <${fromEmail}>`,
+      subject: mailSubject,
+      html: message,                               
+      replyTo: mailReplyTo,
     });
 
     return {
