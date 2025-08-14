@@ -76,10 +76,6 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-trick
 
 This app sends all transactional emails via Zoho SMTP.
 
-Edge Functions:
-- contact-seller: Sends buyer messages to sellers using Zoho SMTP (From: StableWise <info@stablewise.org>).
-- send-test-email: Sends a test email to ZOHO_FROM_EMAIL by default, or to a provided "toEmail" in the request body.
-
 Testing:
 - In your app code, invoke: `supabase.functions.invoke('send-test-email', { body: { toEmail: 'you@stablewise.org' } })`
 - Or call from the Supabase dashboard Functions tester. Check logs if needed.
