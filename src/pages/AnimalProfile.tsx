@@ -197,26 +197,55 @@ export const AnimalProfile = () => {
   
     setIsSending(true);
     try {
-      const response = await fetch('/.netlify/functions/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          toEmail: sellerEmail || contactInfo,
-          fromName: name,
-          fromEmail: email,
-          phone,
-          message: messageText,
-        }),
-      });
+      // Try Supabase edge function first (for development), then fallback to Netlify function
+      let success = false;
+      let errorMessage = '';
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-        throw new Error(errorData.error || 'Email send failed');
+      try {
+        const { data, error } = await supabase.functions.invoke('send-contact-email', {
+          body: {
+            toEmail: sellerEmail || contactInfo,
+            fromName: name,
+            fromEmail: email,
+            phone,
+            message: messageText,
+          }
+        });
+
+        if (error) throw error;
+        success = true;
+      } catch (supabaseError) {
+        console.log('Supabase function failed, trying Netlify function...', supabaseError);
+        
+        // Fallback to Netlify function
+        const response = await fetch('/.netlify/functions/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            toEmail: sellerEmail || contactInfo,
+            fromName: name,
+            fromEmail: email,
+            phone,
+            message: messageText,
+          }),
+        });
+
+        // Check if response is HTML (means function not found)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+          throw new Error('Email service not available in development environment');
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+          throw new Error(errorData.error || 'Email send failed');
+        }
+
+        const data = await response.json();
+        success = true;
       }
-
-      const data = await response.json();
   
       toast({
         title: "Message sent",
