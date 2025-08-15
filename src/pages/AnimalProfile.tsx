@@ -197,17 +197,26 @@ export const AnimalProfile = () => {
   
     setIsSending(true);
     try {
-      const { data, error } = await supabase.functions.invoke('contact-seller', {
-        body: {
+      const response = await fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           toEmail: sellerEmail || contactInfo,
           fromName: name,
           fromEmail: email,
           phone,
           message: messageText,
-        }
+        }),
       });
-  
-      if (error) throw new Error(error.message || "Email send failed");
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(errorData.error || 'Email send failed');
+      }
+
+      const data = await response.json();
   
       toast({
         title: "Message sent",

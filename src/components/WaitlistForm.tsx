@@ -27,7 +27,7 @@ export const WaitlistForm = ({ compact = false }: { compact?: boolean }) => {
     reset,
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
-  const EMAIL_FN_URL = import.meta.env.VITE_EMAIL_FN_URL || "/.netlify/functions/send-email";
+  const EMAIL_FN_URL = "/.netlify/functions/send-email";
 
   const onSubmit = async (values: FormValues) => {
     // 1) Save to Supabase
