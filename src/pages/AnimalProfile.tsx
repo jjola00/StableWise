@@ -56,8 +56,6 @@ export const AnimalProfile = () => {
   const [formPhone, setFormPhone] = useState("");
   const [formMessage, setFormMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const EMAIL_FN_URL =
-  import.meta.env.VITE_EMAIL_FN_URL || "/.netlify/functions/send-email";
   const { toast } = useToast();
 
   useEffect(() => {
@@ -199,21 +197,17 @@ export const AnimalProfile = () => {
   
     setIsSending(true);
     try {
-      const res = await fetch(EMAIL_FN_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('contact-seller', {
+        body: {
           toEmail: sellerEmail || contactInfo,
           fromName: name,
           fromEmail: email,
           phone,
           message: messageText,
-        }),
+        }
       });
   
-      const data = await res.json();
-  
-      if (!res.ok) throw new Error(data?.error || "Email send failed");
+      if (error) throw new Error(error.message || "Email send failed");
   
       toast({
         title: "Message sent",
