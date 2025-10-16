@@ -121,15 +121,25 @@ supabase/
    ```
 
 3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
    
-   Edit `.env` and add your credentials:
+   Create a `.env` file in the root directory with your credentials:
    ```env
+   # Supabase Configuration (Required)
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   
+   # OpenAI Configuration (Required for AI features)
    OPENAI_API_KEY=your_openai_api_key
+   
+   # Zoho SMTP Configuration (Required for email functions)
+   ZOHO_SMTP_HOST=smtp.zoho.com
+   ZOHO_SMTP_PORT=465
+   ZOHO_SMTP_USER=your_zoho_email@domain.com
+   ZOHO_SMTP_PASS=your_zoho_app_password
+   ZOHO_FROM_EMAIL=your_zoho_email@domain.com
+   
+   # CORS Configuration (Optional)
+   ALLOWED_ORIGINS=*
    ```
 
 4. **Set up Supabase**
@@ -158,11 +168,17 @@ npm run preview
 
 ## 🔧 Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `VITE_SUPABASE_URL` | Your Supabase project URL | Yes |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous/public key | Yes |
-| `OPENAI_API_KEY` | OpenAI API key for AI features | Yes |
+| Variable | Description | Required | Used In |
+|----------|-------------|----------|---------|
+| `VITE_SUPABASE_URL` | Your Supabase project URL | Yes | Frontend, Functions |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous/public key | Yes | Frontend |
+| `OPENAI_API_KEY` | OpenAI API key for AI features | Yes | Supabase Functions |
+| `ZOHO_SMTP_HOST` | Zoho SMTP server hostname | Yes | Email Functions |
+| `ZOHO_SMTP_PORT` | Zoho SMTP server port | Yes | Email Functions |
+| `ZOHO_SMTP_USER` | Zoho email username | Yes | Email Functions |
+| `ZOHO_SMTP_PASS` | Zoho email app password | Yes | Email Functions |
+| `ZOHO_FROM_EMAIL` | From email address | Yes | Email Functions |
+| `ALLOWED_ORIGINS` | CORS allowed origins | No | Email Functions |
 
 ## 🚀 Deployment
 

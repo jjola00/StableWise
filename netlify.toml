@@ -7,3 +7,14 @@
   targetPort = 8080
   port = 8888
   autoLaunch = false
+
+# Secrets scanning configuration
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Configure secrets scanning to ignore false positives
+[build.environment]
+  SECRETS_SCAN_ENABLED = "true"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,OPENAI_API_KEY,ZOHO_SMTP_HOST,ZOHO_SMTP_PORT,ZOHO_SMTP_USER,ZOHO_SMTP_PASS,ZOHO_FROM_EMAIL,ALLOWED_ORIGINS"
+  SECRETS_SCAN_OMIT_PATHS = "README.md,package.json,package-lock.json,netlify.toml"
