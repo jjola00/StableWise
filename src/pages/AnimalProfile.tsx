@@ -108,7 +108,6 @@ export const AnimalProfile = () => {
       }
 
     } catch (error) {
-      console.error('Error fetching animal data:', error);
       toast({
         title: "Error",
         description: "Failed to load animal profile",
@@ -140,7 +139,6 @@ export const AnimalProfile = () => {
         description: "AI performance analysis complete",
       });
     } catch (error) {
-      console.error('Error generating AI summary:', error);
       toast({
         title: "Error",
         description: "Failed to generate AI summary",
@@ -215,7 +213,6 @@ export const AnimalProfile = () => {
         if (error) throw error;
         success = true;
       } catch (supabaseError) {
-        console.log('Supabase function failed, trying Netlify function...', supabaseError);
         
         // Fallback to Netlify function
         const response = await fetch('/.netlify/functions/send-email', {
@@ -253,7 +250,6 @@ export const AnimalProfile = () => {
       });
       setIsContactOpen(false);
     } catch (err: any) {
-      console.error(err);
       toast({
         title: "Failed",
         description: err.message || "Could not send your message.",

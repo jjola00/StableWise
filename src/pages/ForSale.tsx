@@ -68,7 +68,6 @@ export const ForSale = () => {
       if (error) throw error;
       setListings(data || []);
     } catch (error) {
-      console.error('Error fetching listings:', error);
       toast({
         title: "Error",
         description: "Failed to load for sale listings",

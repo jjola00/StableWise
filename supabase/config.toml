@@ -1,4 +1,6 @@
-project_id = "sjiclodfxmwrdtobnrbt"
+# Supabase project configuration
+# Note: In production, use environment variables for project_id
+# project_id = "your-project-id-here"
 [functions.contact-seller]
 enabled = true
 verify_jwt = true

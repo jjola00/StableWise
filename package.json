@@ -1,7 +1,13 @@
 {
-  "name": "vite_react_shadcn_ts",
-  "private": true,
-  "version": "0.0.0",
+  "name": "stablewise",
+  "description": "Transparent Sport Horse & Pony Sales Platform with AI-powered insights and verified performance data",
+  "version": "1.0.0",
+  "author": "Your Name <your.email@example.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/stablewise.git"
+  },
+  "homepage": "https://stablewise.org",
   "type": "module",
   "scripts": {
     "dev": "vite",

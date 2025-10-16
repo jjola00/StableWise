@@ -72,7 +72,6 @@ export const EditListingModal = ({ listing, onListingUpdated }: EditListingModal
         image_urls: data.image_urls || [],
       });
     } catch (error) {
-      console.error('Error fetching animal data:', error);
       toast({
         title: "Error",
         description: "Failed to load animal data",
@@ -113,7 +112,6 @@ export const EditListingModal = ({ listing, onListingUpdated }: EditListingModal
         description: "Images uploaded successfully!",
       });
     } catch (error) {
-      console.error('Error uploading images:', error);
       toast({
         title: "Error",
         description: "Failed to upload images",
@@ -162,7 +160,6 @@ export const EditListingModal = ({ listing, onListingUpdated }: EditListingModal
       setIsOpen(false);
       onListingUpdated();
     } catch (error: any) {
-      console.error('Error updating listing:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to update listing",

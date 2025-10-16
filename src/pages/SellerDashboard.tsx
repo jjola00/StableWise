@@ -134,7 +134,6 @@ export const SellerDashboard = () => {
         description: "Images uploaded successfully!",
       });
     } catch (error) {
-      console.error('Error uploading images:', error);
       toast({
         title: "Error",
         description: "Failed to upload images",
@@ -191,7 +190,6 @@ export const SellerDashboard = () => {
         .single();
 
       if (!profile) {
-        console.log('No profile found for user, creating one...');
         const { data: newProfile, error: profileError } = await (supabase as any)
           .from('profiles')
           .insert({
@@ -203,7 +201,6 @@ export const SellerDashboard = () => {
           .single();
 
         if (profileError) {
-          console.error('Error creating profile:', profileError);
           setListings([]);
           return;
         }
@@ -223,7 +220,6 @@ export const SellerDashboard = () => {
       if (error) throw error;
       setListings(data || []);
     } catch (error) {
-      console.error('Error fetching listings:', error);
       toast({
         title: "Error",
         description: "Failed to load your listings",
@@ -266,7 +262,6 @@ export const SellerDashboard = () => {
         .single();
 
       if (!profile) {
-        console.log('No profile found, creating one...');
         const { data: newProfile, error: profileError } = await (supabase as any)
           .from('profiles')
           .insert({
@@ -299,7 +294,7 @@ export const SellerDashboard = () => {
             finalDescription = aiData.summary;
           }
         } catch (aiError) {
-          console.warn('AI description generation failed:', aiError);
+          // AI description generation failed, continue with manual description
         } finally {
           setIsGeneratingAI(false);
         }
@@ -345,7 +340,6 @@ export const SellerDashboard = () => {
       // Refresh listings
       fetchUserListings(session.user.id);
     } catch (error: any) {
-      console.error('Error adding animal:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to list animal",

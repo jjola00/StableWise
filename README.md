@@ -1,89 +1,214 @@
-# Welcome to your Lovable project
+# StableWise
 
-## Project info
+> **Transparent Sport Horse & Pony Sales Platform**
 
-**URL**: https://lovable.dev/projects/0aa1bf2a-f620-45fd-a1a5-4dc7f87c3e40
+StableWise is a comprehensive marketplace that brings transparency to sport horse and pony sales through verified performance data, AI-powered insights, and competition histories. Built for serious buyers and sellers in the international equestrian market.
 
-## How can I edit this code?
+## 🌟 Key Features
 
-There are several ways of editing your application.
+- **Verified Performance Data**: Competition results from verified sources across international venues
+- **AI Performance Analysis**: Intelligent summaries of competition performance and trends using OpenAI
+- **Transparent Listings**: No inflated claims - just documented performance history
+- **International Scope**: Sport horses and ponies from competitions worldwide
+- **Advanced Search**: Comprehensive database with filtering capabilities
+- **Seller Dashboard**: Professional tools for listing and managing horses/ponies
+- **Email Integration**: Automated communication system for buyer-seller interactions
 
-**Use Lovable**
+## 🚀 Live Demo
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0aa1bf2a-f620-45fd-a1a5-4dc7f87c3e40) and start prompting.
+Visit the live application at [stablewise.org](https://stablewise.org)
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠️ Tech Stack
 
-**Use your preferred IDE**
+### Frontend
+- **React 18** - Modern UI framework with hooks and functional components
+- **TypeScript** - Type-safe development with full IntelliSense support
+- **Vite** - Lightning-fast build tool and development server
+- **Tailwind CSS** - Utility-first CSS framework for rapid UI development
+- **shadcn/ui** - High-quality, accessible component library
+- **React Router** - Client-side routing for SPA navigation
+- **React Hook Form** - Performant forms with easy validation
+- **Zod** - TypeScript-first schema validation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Backend & Database
+- **Supabase** - Backend-as-a-Service with PostgreSQL database
+- **Row Level Security (RLS)** - Database-level security policies
+- **Real-time subscriptions** - Live updates for listings and messages
+- **Authentication** - Secure user management with email verification
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### AI & Integrations
+- **OpenAI GPT-4** - AI-powered performance analysis and summaries
+- **Netlify Functions** - Serverless functions for email handling
+- **Zoho SMTP** - Professional email delivery system
 
-Follow these steps:
+### Deployment
+- **Netlify** - Static site hosting with serverless functions
+- **Custom Domain** - Professional stablewise.org domain
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🏗️ Architecture Overview
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   React SPA     │    │   Supabase      │    │   OpenAI API    │
+│   (Frontend)    │◄──►│   (Backend)     │◄──►│   (AI Analysis) │
+│                 │    │                 │    │                 │
+│ • TypeScript    │    │ • PostgreSQL    │    │ • GPT-4         │
+│ • Tailwind CSS  │    │ • Auth & RLS    │    │ • Performance   │
+│ • shadcn/ui     │    │ • Real-time     │    │   Summaries     │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │
+         ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐
+│   Netlify       │    │   Zoho SMTP     │
+│   (Hosting)     │    │   (Email)       │
+│                 │    │                 │
+│ • Static Host   │    │ • Transactional │
+│ • Functions     │    │   Emails        │
+│ • CDN           │    │ • Notifications │
+└─────────────────┘    └─────────────────┘
 ```
 
-**Edit a file directly in GitHub**
+## 📁 Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # shadcn/ui components
+│   ├── Header.tsx      # Navigation header
+│   ├── Footer.tsx      # Site footer
+│   ├── SearchBar.tsx   # Advanced search functionality
+│   └── ...
+├── pages/              # Route components
+│   ├── HomePage.tsx    # Landing page with hero section
+│   ├── ForSale.tsx     # Horse/pony listings
+│   ├── AnimalProfile.tsx # Individual animal details
+│   ├── SellerDashboard.tsx # Seller management interface
+│   └── ...
+├── hooks/              # Custom React hooks
+├── lib/                # Utility functions
+├── integrations/       # External service integrations
+│   └── supabase/       # Database client and types
+└── main.tsx           # Application entry point
 
-**Use GitHub Codespaces**
+supabase/
+├── functions/          # Edge functions
+│   ├── generate-performance-summary/ # AI analysis
+│   ├── send-contact-email/          # Email notifications
+│   └── send-waitlist-email/         # Waitlist management
+└── migrations/         # Database schema migrations
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🚀 Getting Started
 
-## What technologies are used for this project?
+### Prerequisites
 
-This project is built with:
+- **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
+- **npm** (comes with Node.js)
+- **Supabase Account** - [Sign up here](https://supabase.com/)
+- **OpenAI API Key** - [Get your key here](https://platform.openai.com/)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Installation
 
-## How can I deploy this project?
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/stablewise.git
+   cd stablewise
+   ```
 
-Simply open [Lovable](https://lovable.dev/projects/0aa1bf2a-f620-45fd-a1a5-4dc7f87c3e40) and click on Share -> Publish.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-## Can I connect a custom domain to my Lovable project?
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit `.env` and add your credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   OPENAI_API_KEY=your_openai_api_key
+   ```
 
-Yes, you can!
+4. **Set up Supabase**
+   - Create a new Supabase project
+   - Run the migrations in `supabase/migrations/`
+   - Set up Row Level Security policies
+   - Configure email templates
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+5. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+6. **Open your browser**
+   Navigate to `http://localhost:8080`
 
-## Email provider: Zoho SMTP
+### Building for Production
 
-This app sends all transactional emails via Zoho SMTP.
+```bash
+# Build the application
+npm run build
 
-Testing:
-- In your app code, invoke: `supabase.functions.invoke('send-test-email', { body: { toEmail: 'you@stablewise.org' } })`
-- Or call from the Supabase dashboard Functions tester. Check logs if needed.
+# Preview the production build
+npm run preview
+```
 
-Zoho DNS setup checklist:
-- SPF includes Zoho: `v=spf1 include:zoho.eu ~all` (region may vary)
-- DKIM enabled for your domain in Zoho Mail Admin
-- Ensure SMTP is enabled for the mailbox and you use an app password
+## 🔧 Environment Variables
 
-All emails now originate from https://stablewise.org and info@stablewise.org.
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `VITE_SUPABASE_URL` | Your Supabase project URL | Yes |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous/public key | Yes |
+| `OPENAI_API_KEY` | OpenAI API key for AI features | Yes |
 
+## 🚀 Deployment
+
+The application is deployed on Netlify with the following features:
+
+- **Automatic deployments** from the main branch
+- **Serverless functions** for email handling
+- **Custom domain** (stablewise.org)
+- **SSL certificates** automatically managed
+- **CDN** for fast global delivery
+
+### Netlify Configuration
+
+The `netlify.toml` file configures:
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Function directory: `netlify/functions`
+
+## 🎯 Features Showcase
+
+### Technical Implementation
+- **Type-Safe Development**: Full TypeScript implementation with strict type checking
+- **Modern React Patterns**: Hooks, context, and functional components throughout
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **Performance Optimized**: Code splitting, lazy loading, and optimized builds
+- **Real-time Updates**: Live data synchronization with Supabase
+- **AI Integration**: Seamless OpenAI API integration for intelligent analysis
+
+### Business Value
+- **Market Transparency**: Verified data eliminates guesswork in horse sales
+- **Professional Tools**: Comprehensive seller dashboard and listing management
+- **International Reach**: Support for competitions and venues worldwide
+- **Trust & Security**: Secure authentication and data protection
+- **Scalable Architecture**: Built to handle growth in users and data
+
+## 📄 License
+
+All Rights Reserved. This project is proprietary software. No permission is granted for use, modification, or distribution without explicit authorization from the copyright holder.
+
+## 👨‍💻 Author
+
+**Your Name**
+- Portfolio: [your-portfolio.com](https://your-portfolio.com)
+- LinkedIn: [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
+- Email: your.email@example.com
+
+---
+
+*Built with ❤️ for the equestrian community*

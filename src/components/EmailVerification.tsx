@@ -45,7 +45,6 @@ export const EmailVerification = ({ email, onVerificationComplete }: EmailVerifi
       
       onVerificationComplete();
     } catch (error: any) {
-      console.error('Verification error:', error);
       toast({
         title: "Error",
         description: error.message || "Invalid verification code",
@@ -74,7 +73,6 @@ export const EmailVerification = ({ email, onVerificationComplete }: EmailVerifi
         description: "A new verification code has been sent to your email",
       });
     } catch (error: any) {
-      console.error('Resend error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to resend verification code",

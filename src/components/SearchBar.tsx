@@ -46,7 +46,6 @@ export const SearchBar = ({ variant = "default" }: SearchBarProps) => {
         setSuggestions(data || []);
         setShowSuggestions(true);
       } catch (error) {
-        console.error('Error searching animals:', error);
         setSuggestions([]);
       } finally {
         setIsLoading(false);
