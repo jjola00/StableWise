@@ -14,7 +14,7 @@ StableWise is a comprehensive marketplace that brings transparency to sport hors
 - **Seller Dashboard**: Professional tools for listing and managing horses/ponies
 - **Email Integration**: Automated communication system for buyer-seller interactions
 
-## 🚀 Live Demo
+## 🚀 Live
 
 Visit the live application at [stablewise.org](https://stablewise.org)
 
@@ -202,5 +202,3 @@ The `netlify.toml` file configures:
 
 All Rights Reserved. This project is proprietary software. No permission is granted for use, modification, or distribution without explicit authorization from the copyright holder.
 ---
-
-*Built with ❤️ for the equestrian community*
