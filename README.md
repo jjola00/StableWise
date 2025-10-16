@@ -201,14 +201,6 @@ The `netlify.toml` file configures:
 ## 📄 License
 
 All Rights Reserved. This project is proprietary software. No permission is granted for use, modification, or distribution without explicit authorization from the copyright holder.
-
-## 👨‍💻 Author
-
-**Your Name**
-- Portfolio: [your-portfolio.com](https://your-portfolio.com)
-- LinkedIn: [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
-
 ---
 
 *Built with ❤️ for the equestrian community*
